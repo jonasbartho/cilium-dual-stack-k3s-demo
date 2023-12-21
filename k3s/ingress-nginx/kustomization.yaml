@@ -1,0 +1,39 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+generatorOptions:
+  disableNameSuffixHash: true
+resources:
+  # svc-type doesn't need to be patched to "NodePort" if you set up MetalLB or L2-announcements in Cilium.
+  - github.com/kubernetes/ingress-nginx//deploy/static/provider/cloud?ref=controller-v1.9.4
+
+patches:
+  - patch: |-
+      - op: add
+        path: "/spec/template/spec/containers/0/securityContext/runAsNonRoot"
+        value: true
+    target:
+      kind: Deployment
+      name: ingress-nginx-controller
+  # this is necessary for applying the necessary TLS-config nextcloud ingress
+  - patch: |-
+      - op: replace
+        path: "/data/allow-snippet-annotations"
+        value: "true"
+    target:
+      kind: ConfigMap
+      name: ingress-nginx-controller
+  - patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: ingress-nginx-controller
+        namespace: ingress-nginx
+      spec:
+        ipFamilies:
+        - IPv6
+        - IPv4
+        ipFamilyPolicy: PreferDualStack
+        # externalIPs:
+        # - 2001:...
+        # - 192.168.2.14

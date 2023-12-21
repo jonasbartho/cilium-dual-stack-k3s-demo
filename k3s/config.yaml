@@ -1,0 +1,27 @@
+# this file presents the k3s bootstrap config - this does not get included in kustomize
+---
+# the following IP's are those from my Raspberry PI
+node-ip: 192.168.1.211,2001:db8:8500:1:c0d:807c:39bc:1f4b
+#node-name: pi-jonas
+tls-san: 192.168.1.211 # this is to connect to the API directly from my home network without any TLS-errors
+
+# https://docs.k3s.io/installation/network-options
+# If you change the cluster-cidr mask,you should also change the node-cidr-mask-size-ipv6 values to match the planned pods per node and total node count.
+# We are sticking to the defaults which are /24 for ipv4 and /64 for ipv6. These are sane values.
+# kube-controller-manager-arg:
+#   - node-cidr-mask-size-ipv4=16
+#   - node-cidr-mask-size-ipv6=48
+
+# the ipv4-ranges are default in k3s
+# the fd-range is a private ipv6-range
+cluster-cidr: 10.42.0.0/16,fd01::/48
+service-cidr: 10.43.0.0/16,fd02::/112
+
+flannel-backend: none
+disable:
+  - traefik # I prefer nginx. This can also be replaced with Cilium's ingress controller or gateway API
+  - servicelb # we will use Cilium's L2-announcements or metalLB
+  - metrics-server # useful, but not necessary for this demo
+disable-network-policy: true # cillium will replace this
+disable-kube-proxy: true # cillium will replace this
+default-local-storage-path: /srv/k3s-local-storage # can be replaced with longhorn, but is not necessary with a single node

@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-http01
+spec:
+  acme:
+    email: yourmailaddress@mail.com
+    preferredChain: ""
+    privateKeySecretRef:
+      name: letsencrypt-http01
+    server: https://acme-v02.api.letsencrypt.org/directory
+    solvers:
+      - http01:
+          ingress:
+            # https://cert-manager.io/docs/configuration/acme/http01/#ingressclassname
+            # this is necessary for the Ingress of the acme pods to be able to receive the correct ingressClass
+            ingressClassName: nginx
+        selector: {}

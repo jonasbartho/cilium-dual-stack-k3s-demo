@@ -1,0 +1,50 @@
+operator:
+  replicas: 1
+kubeProxyReplacement: strict
+k8sServiceHost: 192.168.1.211 # without this, cillium cannot talk to k3s
+k8sServicePort: 6443
+ipv4:
+  enabled: true
+ipv6:
+  enabled: true
+
+# Ref. https://ubuntu.com/kubernetes/docs/cni-cilium
+# To define the IP address range that can be assigned to Kubernetes Pods within the cluster,
+# two configuration settings can be adjusted: cluster-pool-ipv4-cidr and cluster-pool-ipv4-mask-size.
+# The cluster-pool-ipv4-cidr configuration specifies the IPv4 CIDR block for the cluster pool.
+# This determines the range of IP addresses that the Kubernetes Pods can use.
+# On the other hand, the cluster-pool-ipv4-mask-size configuration setting specifies the number of bits in the subnet mask to be used for the IP addresses in the cluster pool.
+# It defines the number of IP addresses that are available in the node from the cluster pool.
+# For instance, if cluster-pool-ipv4-cidr is set to 10.1.0.0/16 and cluster-pool-ipv4-mask-size is set to 24,
+# then the available IP addresses for the Kubernetes Pods in the one of the nodes will fall in the range of 10.1.0.1 to 10.1.0.254
+ipam:
+  mode: cluster-pool
+  operator:
+    clusterPoolIPv4PodCIDRList: "10.42.0.0/16"
+    clusterPoolIPv4MaskSize: 24
+    clusterPoolIPv6PodCIDRList: "fd01::/48"
+    clusterPoolIPv6MaskSize: 64
+bpf:
+  masquerade: true # https://docs.cilium.io/en/stable/network/concepts/masquerading/ - this should improve performance
+
+# l2announcements:
+#   enabled: true
+#   leaseDurations: "3s"
+#   leaseRenewDeadline: "1s"
+#   leaseRetryPeriod: "500ms"
+# The following should to be configured when using this feature due to increased API usage,
+# but for this project, I am not doing this
+# k8sClientRateLimit:
+#   qps: { QPS }
+#   burst: { BURST }
+
+# externalIPs can be used in Cilium to manually configure external IPs(you do not need a pool then)
+# At the time of writing, this only supports ipv4
+# externalIPs:
+#   enabled: true
+
+# extraConfig:
+#   enable-ipv6-ndp: "true" # necessary to expose the IPv6-addressess on the node
+#   ipv6-mcast-device: "eth0" # network interface on the node to proxy NDP-packets
+#   ipv6-service-range: "fd02::/112"
+
