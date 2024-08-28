@@ -5,7 +5,7 @@ generatorOptions:
   disableNameSuffixHash: true
 resources:
   # svc-type doesn't need to be patched to "NodePort" if you set up MetalLB or L2-announcements in Cilium.
-  - github.com/kubernetes/ingress-nginx//deploy/static/provider/cloud?ref=controller-v1.9.4
+  - github.com/kubernetes/ingress-nginx//deploy/static/provider/cloud?ref=controller-v1.11.2
 
 patches:
   - patch: |-
